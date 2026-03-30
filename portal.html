@@ -1,1 +1,2037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FidModels — Model Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --black: #0a0a0a;
+    --gold: #c9a84c;
+    --gold-light: #e8d5a3;
+    --grey: #6b6b6b;
+    --light-grey: #e8e4dc;
+    --surface: #ffffff;
+    --bg: #f7f4ef;
+    --red: #c0392b;
+    --green: #16a34a;
+    --green-light: #f0fdf4;
+    --serif: 'Cormorant Garamond', serif;
+    --sans: 'Montserrat', sans-serif;
+    --shadow: 0 4px 24px rgba(0,0,0,0.07);
+    --shadow-lg: 0 12px 48px rgba(0,0,0,0.12);
+  }
 
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--black); font-family: var(--sans); min-height: 100vh; cursor: none; }
+
+  /* CURSOR */
+  .cursor { width:7px;height:7px;background:var(--black);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999; }
+  .cursor-ring { width:28px;height:28px;border:1px solid rgba(0,0,0,0.3);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transition:all 0.12s ease; }
+
+  /* ═══════════════════════════════════════════
+     SCREEN SYSTEM
+  ═══════════════════════════════════════════ */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ═══════════════════════════════════════════
+     SCREEN 1 — LOGIN
+  ═══════════════════════════════════════════ */
+  #loginScreen {
+    background: var(--black);
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #loginScreen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(201,168,76,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(201,168,76,0.04) 0%, transparent 50%);
+  }
+
+  #loginScreen::after {
+    content: 'FIDMODELS';
+    position: absolute;
+    font-family: var(--serif);
+    font-size: 280px;
+    font-weight: 300;
+    color: rgba(201,168,76,0.03);
+    letter-spacing: 20px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .login-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px;
+    padding: 0 24px;
+  }
+
+  .login-logo {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .login-logo-text {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: var(--cream);
+  }
+
+  .login-logo-text span { font-style: italic; color: var(--gold); }
+
+  .login-logo-sub {
+    font-size: 9px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.5);
+    font-weight: 500;
+    margin-top: 8px;
+  }
+
+  .login-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 2px;
+    padding: 40px;
+    backdrop-filter: blur(20px);
+  }
+
+  .login-title {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 300;
+    color: var(--cream);
+    margin-bottom: 6px;
+  }
+
+  .login-title em { font-style: italic; color: var(--gold-light); }
+
+  .login-sub {
+    font-size: 12px;
+    color: rgba(245,240,232,0.4);
+    font-weight: 300;
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .login-field {
+    margin-bottom: 20px;
+  }
+
+  .login-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.7);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .login-input {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 1px;
+    padding: 14px 16px;
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--cream);
+    font-weight: 300;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+
+  .login-input:focus { border-color: var(--gold); }
+  .login-input::placeholder { color: rgba(245,240,232,0.2); }
+
+  .login-btn {
+    width: 100%;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    padding: 16px;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .login-btn:hover { background: #b8943d; }
+
+  .login-btn.loading::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+    animation: shimmer 1s infinite;
+  }
+
+  @keyframes shimmer {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+  }
+
+  .login-footer {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 11px;
+    color: rgba(245,240,232,0.25);
+    font-weight: 300;
+    line-height: 1.7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  /* ═══════════════════════════════════════════
+     SCREEN 2 — CONTRACTS
+  ═══════════════════════════════════════════ */
+  #contractScreen {
+    background: var(--bg);
+  }
+
+  .contract-nav {
+    background: var(--black);
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .contract-nav-logo {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 300;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--cream);
+  }
+
+  .contract-nav-logo span { font-style: italic; color: var(--gold); }
+
+  .contract-step-indicator {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.6);
+    font-weight: 500;
+  }
+
+  .contract-body {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 24px;
+  }
+
+  .contract-header { margin-bottom: 40px; }
+
+  .contract-eyebrow {
+    font-size: 9px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .contract-eyebrow::before { content:''; display:block; width:20px; height:1px; background:var(--gold); }
+
+  .contract-title {
+    font-family: var(--serif);
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 300;
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+
+  .contract-title em { font-style: italic; color: var(--gold); }
+
+  .contract-desc {
+    font-size: 13px;
+    color: var(--grey);
+    line-height: 1.8;
+    font-weight: 300;
+    max-width: 560px;
+  }
+
+  .contract-progress {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 40px;
+    align-items: center;
+  }
+
+  .cp-step {
+    height: 3px;
+    flex: 1;
+    background: var(--light-grey);
+    border-radius: 2px;
+    transition: background 0.4s;
+  }
+
+  .cp-step.done { background: var(--gold); }
+
+  .contract-cards { display: flex; flex-direction: column; gap: 16px; }
+
+  .contract-card {
+    background: var(--surface);
+    border: 1.5px solid var(--light-grey);
+    border-radius: 2px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+    box-shadow: var(--shadow);
+  }
+
+  .contract-card.agreed { border-color: var(--gold); }
+
+  .contract-card-header {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .contract-card-left { display: flex; align-items: center; gap: 16px; }
+
+  .contract-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid var(--light-grey);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--grey);
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+
+  .contract-card.agreed .contract-num {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--black);
+    font-weight: 600;
+  }
+
+  .contract-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .contract-card-sub {
+    font-size: 11px;
+    color: var(--grey);
+    font-weight: 300;
+    margin-top: 2px;
+  }
+
+  .contract-chevron {
+    font-size: 11px;
+    color: var(--grey);
+    transition: transform 0.3s;
+  }
+
+  .contract-card.open .contract-chevron { transform: rotate(180deg); }
+
+  .contract-body-text {
+    display: none;
+    padding: 0 24px 20px;
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--grey);
+    font-weight: 300;
+    border-top: 1px solid var(--light-grey);
+    margin: 0 24px;
+    padding-top: 16px;
+  }
+
+  .contract-card.open .contract-body-text { display: block; }
+
+  .contract-agree {
+    padding: 16px 24px;
+    border-top: 1px solid var(--light-grey);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .agree-checkbox { display: none; }
+
+  .agree-box {
+    width: 20px; height: 20px;
+    border: 1.5px solid var(--light-grey);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.3s;
+    font-size: 11px;
+    font-weight: 700;
+    color: transparent;
+  }
+
+  .agree-checkbox:checked ~ .agree-box {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--black);
+  }
+
+  .agree-label {
+    font-size: 12px;
+    color: var(--grey);
+    font-weight: 400;
+    cursor: pointer;
+    line-height: 1.5;
+  }
+
+  .contract-action {
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .contracts-done-count {
+    font-size: 12px;
+    color: var(--grey);
+    font-weight: 400;
+  }
+
+  .contracts-done-count strong { color: var(--gold); }
+
+  .proceed-btn {
+    padding: 16px 48px;
+    background: var(--black);
+    color: var(--cream);
+    border: 1px solid var(--black);
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .proceed-btn.enabled {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .proceed-btn.enabled:hover { background: var(--gold); border-color: var(--gold); color: var(--black); }
+  .proceed-btn::after { content: '→'; }
+
+  /* ═══════════════════════════════════════════
+     SCREEN 3 — DASHBOARD
+  ═══════════════════════════════════════════ */
+  #dashScreen { background: var(--bg); flex-direction: column; }
+
+  /* TOP NAV */
+  .dash-nav {
+    background: var(--black);
+    padding: 0 32px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .dash-nav-logo {
+    font-family: var(--serif);
+    font-size: 17px;
+    font-weight: 300;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--cream);
+  }
+
+  .dash-nav-logo span { font-style: italic; color: var(--gold); }
+
+  .dash-nav-center {
+    display: flex;
+    gap: 32px;
+  }
+
+  .dash-nav-link {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.4);
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s;
+    text-decoration: none;
+  }
+
+  .dash-nav-link:hover { color: var(--gold); }
+  .dash-nav-link.active { color: var(--gold); }
+
+  .dash-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .notif-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .notif-btn:hover { background: rgba(255,255,255,0.1); }
+
+  .notif-dot {
+    position: absolute;
+    top: 5px; right: 5px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 1.5px solid var(--black);
+  }
+
+  .avatar-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 14px;
+    font-style: italic;
+    color: var(--black);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* DASH BODY */
+  .dash-body {
+    flex: 1;
+    max-width: 1280px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 36px 32px 60px;
+  }
+
+  /* WELCOME BANNER */
+  .welcome-banner {
+    background: var(--black);
+    border-radius: 2px;
+    padding: 32px 40px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .welcome-banner::before {
+    content: '';
+    position: absolute;
+    right: -40px; top: -40px;
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+  }
+
+  .welcome-banner::after {
+    content: '';
+    position: absolute;
+    left: -20px; bottom: -60px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+  }
+
+  .welcome-left { position: relative; z-index: 1; }
+
+  .welcome-greeting {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .welcome-name {
+    font-family: var(--serif);
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .welcome-name em { font-style: italic; color: var(--gold-light); }
+
+  .welcome-meta {
+    font-size: 12px;
+    color: rgba(245,240,232,0.45);
+    font-weight: 300;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .welcome-meta-sep { width: 3px; height: 3px; border-radius: 50%; background: rgba(245,240,232,0.3); }
+
+  .welcome-right {
+    position: relative;
+    z-index: 1;
+    text-align: right;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(22,163,74,0.15);
+    border: 1px solid rgba(22,163,74,0.3);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #4ade80;
+    font-weight: 600;
+  }
+
+  .status-dot-green {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1;}50%{opacity:0.4;} }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--light-grey);
+    border-radius: 2px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s;
+  }
+
+  .stat-card:hover::after { transform: scaleX(1); }
+
+  .stat-icon {
+    font-size: 20px;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--grey);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-value.gold { color: var(--gold); }
+  .stat-value.green { color: var(--green); }
+
+  .stat-change {
+    font-size: 11px;
+    color: var(--grey);
+    font-weight: 300;
+  }
+
+  .stat-change.positive { color: var(--green); }
+
+  /* MAIN GRID */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+  }
+
+  /* TASKS CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--light-grey);
+    border-radius: 2px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--light-grey);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .card-badge.urgent { background: #fef2f2; color: #991b1b; }
+  .card-badge.done { background: var(--green-light); color: var(--green); }
+
+  .card-action {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s;
+    background: none;
+    border: none;
+    font-family: var(--sans);
+  }
+
+  .card-action:hover { color: #b8943d; }
+
+  .card-body { padding: 0; }
+
+  /* TASK ITEMS */
+  .task-item {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--light-grey);
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    transition: background 0.2s;
+  }
+
+  .task-item:last-child { border-bottom: none; }
+  .task-item:hover { background: #fafaf8; }
+
+  .task-icon-wrap {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: #fef3c7;
+    border: 1.5px solid #fde68a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .task-icon-wrap.urgent { background: #fef2f2; border-color: #fecaca; }
+  .task-icon-wrap.pending { background: #eff6ff; border-color: #bfdbfe; }
+
+  .task-content { flex: 1; min-width: 0; }
+
+  .task-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    line-height: 1.4;
+  }
+
+  .task-desc {
+    font-size: 12px;
+    color: var(--grey);
+    font-weight: 300;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .task-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .task-tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .tag-urgent { background: #fef2f2; color: #991b1b; }
+  .tag-pending { background: #eff6ff; color: #1d4ed8; }
+  .tag-new { background: #fef3c7; color: #92400e; }
+
+  .task-deadline {
+    font-size: 10px;
+    color: var(--grey);
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .task-action-btn {
+    flex-shrink: 0;
+    padding: 8px 18px;
+    background: var(--black);
+    color: var(--cream);
+    border: none;
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 1px;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .task-action-btn:hover { background: var(--gold); color: var(--black); }
+
+  /* UPLOAD MODAL */
+  .upload-prompt {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,10,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .upload-prompt.show { display: flex; }
+
+  .upload-box {
+    background: var(--surface);
+    border-radius: 2px;
+    width: 100%;
+    max-width: 500px;
+    margin: 24px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .upload-header {
+    background: var(--black);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .upload-header-title {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 300;
+    color: var(--cream);
+  }
+
+  .upload-header-title em { font-style: italic; color: var(--gold-light); }
+
+  .upload-close {
+    font-size: 18px;
+    color: rgba(245,240,232,0.5);
+    cursor: pointer;
+    background: none;
+    border: none;
+    transition: color 0.2s;
+    line-height: 1;
+  }
+
+  .upload-close:hover { color: var(--cream); }
+
+  .upload-body { padding: 28px 24px; }
+
+  .upload-task-name {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .upload-desc {
+    font-size: 13px;
+    color: var(--grey);
+    line-height: 1.7;
+    font-weight: 300;
+    margin-bottom: 24px;
+  }
+
+  .upload-instructions {
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    border-radius: 2px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+  }
+
+  .upload-instructions-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #92400e;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .upload-instructions ul {
+    padding-left: 16px;
+    font-size: 12px;
+    color: #78350f;
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .recruiter-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg);
+    border: 1px solid var(--light-grey);
+    border-radius: 2px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+  }
+
+  .recruiter-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 16px;
+    font-style: italic;
+    color: var(--black);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .recruiter-info-name {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .recruiter-info-role {
+    font-size: 11px;
+    color: var(--grey);
+    font-weight: 300;
+  }
+
+  .upload-contact-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .contact-method {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border: 1px solid var(--light-grey);
+    border-radius: 2px;
+    font-size: 13px;
+    color: var(--black);
+    font-weight: 400;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    user-select: all;
+  }
+
+  .contact-method:hover { border-color: var(--gold); }
+  .contact-method-icon { font-size: 16px; flex-shrink: 0; }
+  .contact-method-label { font-size: 10px; color: var(--grey); font-weight: 300; }
+  .contact-method-value { font-weight: 600; font-size: 14px; }
+
+  .copy-hint { font-size: 10px; color: var(--gold); margin-left: auto; font-weight: 500; }
+
+  .upload-footer {
+    display: flex;
+    gap: 10px;
+  }
+
+  .upload-cancel {
+    flex: 1;
+    padding: 13px;
+    background: transparent;
+    border: 1px solid var(--light-grey);
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--grey);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .upload-cancel:hover { border-color: var(--black); color: var(--black); }
+
+  .upload-confirm {
+    flex: 2;
+    padding: 13px;
+    background: var(--black);
+    border: 1px solid var(--black);
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cream);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .upload-confirm:hover { background: var(--gold); border-color: var(--gold); color: var(--black); }
+
+  /* SIDEBAR CARDS */
+  .sidebar-stack { display: flex; flex-direction: column; gap: 20px; }
+
+  /* BALANCE CARD */
+  .balance-card {
+    background: var(--black);
+    border-radius: 2px;
+    padding: 28px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .balance-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,168,76,0.15) 0%, transparent 70%);
+  }
+
+  .balance-label {
+    font-size: 9px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.6);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .balance-amount {
+    font-family: var(--serif);
+    font-size: 40px;
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .balance-currency {
+    font-size: 16px;
+    color: var(--gold);
+    margin-right: 4px;
+  }
+
+  .balance-sub {
+    font-size: 11px;
+    color: rgba(245,240,232,0.35);
+    font-weight: 300;
+    margin-bottom: 24px;
+  }
+
+  .balance-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.07);
+    margin-bottom: 18px;
+  }
+
+  .balance-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .balance-row:last-child { margin-bottom: 0; }
+
+  .balance-row-label {
+    font-size: 11px;
+    color: rgba(245,240,232,0.4);
+    font-weight: 300;
+  }
+
+  .balance-row-val {
+    font-size: 12px;
+    color: var(--cream);
+    font-weight: 500;
+  }
+
+  .balance-row-val.gold { color: var(--gold); }
+  .balance-row-val.pending { color: #fbbf24; }
+
+  .withdraw-btn {
+    width: 100%;
+    padding: 13px;
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--gold);
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 20px;
+  }
+
+  .withdraw-btn:hover { background: var(--gold); color: var(--black); }
+
+  /* PROFILE CARD */
+  .profile-card {
+    background: var(--surface);
+    border: 1px solid var(--light-grey);
+    border-radius: 2px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .profile-card-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .profile-avatar {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 22px;
+    font-style: italic;
+    color: var(--gold);
+    font-weight: 400;
+    flex-shrink: 0;
+  }
+
+  .profile-name {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+
+  .profile-id {
+    font-size: 11px;
+    color: var(--grey);
+    font-weight: 300;
+    font-family: var(--serif);
+    font-style: italic;
+  }
+
+  .profile-rows { display: flex; flex-direction: column; gap: 0; }
+
+  .profile-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--light-grey);
+    font-size: 12px;
+  }
+
+  .profile-row:last-child { border-bottom: none; }
+  .profile-row-key { color: var(--grey); font-weight: 400; }
+  .profile-row-val { font-weight: 500; text-align: right; }
+  .profile-row-val.gold { color: var(--gold); }
+
+  /* NOTIFICATIONS CARD */
+  .notif-card {
+    background: var(--surface);
+    border: 1px solid var(--light-grey);
+    border-radius: 2px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .notif-item {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--light-grey);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .notif-item:last-child { border-bottom: none; }
+  .notif-item:hover { background: #fafaf8; }
+  .notif-item.unread { background: #fffdf7; }
+
+  .notif-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  .notif-content { flex: 1; }
+
+  .notif-text {
+    font-size: 12px;
+    line-height: 1.5;
+    font-weight: 400;
+    margin-bottom: 3px;
+  }
+
+  .notif-time {
+    font-size: 10px;
+    color: var(--grey);
+    font-weight: 300;
+  }
+
+  /* WITHDRAW MODAL */
+  .withdraw-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,10,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .withdraw-modal.show { display: flex; }
+
+  .withdraw-box {
+    background: var(--surface);
+    border-radius: 2px;
+    width: 100%;
+    max-width: 420px;
+    margin: 24px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .withdraw-header {
+    background: var(--black);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .withdraw-title {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 300;
+    color: var(--cream);
+  }
+
+  .withdraw-body { padding: 24px; }
+
+  .withdraw-notice {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 2px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #991b1b;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .withdraw-notice strong { font-weight: 700; display: block; margin-bottom: 4px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+
+  .w-field { margin-bottom: 16px; }
+  .w-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--grey); font-weight: 600; display: block; margin-bottom: 8px; }
+  .w-input { width:100%; border:1.5px solid var(--light-grey); border-radius:1px; padding:12px 14px; font-family:var(--sans); font-size:14px; color:var(--black); outline:none; transition:border-color 0.2s; }
+  .w-input:focus { border-color:var(--gold); }
+  .w-btn { width:100%; padding:14px; background:var(--gold); color:var(--black); border:none; font-family:var(--sans); font-size:11px; letter-spacing:3px; text-transform:uppercase; font-weight:700; cursor:pointer; transition:background 0.2s; }
+  .w-btn:hover { background:#b8943d; }
+
+  /* MOBILE */
+  @media (max-width: 900px) {
+    .dash-nav-center { display: none; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .main-grid { grid-template-columns: 1fr; }
+    .dash-body { padding: 20px 16px 40px; }
+    .welcome-banner { padding: 24px; flex-direction: column; gap: 16px; align-items: flex-start; }
+    .contract-body { padding: 32px 16px; }
+    .contract-action { flex-direction: column; gap: 16px; align-items: flex-start; }
+    .proceed-btn { width: 100%; justify-content: center; }
+    .login-box { padding: 28px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 1 — LOGIN
+═══════════════════════════════════ -->
+<div class="screen active" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-text">Fid<span>Models</span></div>
+      <div class="login-logo-sub">Model Portal — Secure Access</div>
+    </div>
+    <div class="login-box">
+      <h2 class="login-title">Welcome <em>Back.</em></h2>
+      <p class="login-sub">Sign in to your model portal to view bookings, tasks, and your account balance.</p>
+      <div class="login-field">
+        <label class="login-label">Email / Model ID</label>
+        <input class="login-input" type="text" id="loginEmail" placeholder="your@email.com or FM-XXXX">
+      </div>
+      <div class="login-field">
+        <label class="login-label">Password</label>
+        <input class="login-input" type="password" id="loginPass" placeholder="••••••••••">
+      </div>
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In to Portal</button>
+    </div>
+    <div class="login-footer">
+      <span>🔒</span>
+      <span>256-bit SSL encrypted · Your session is fully secure</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 2 — CONTRACTS
+═══════════════════════════════════ -->
+<div class="screen" id="contractScreen">
+  <nav class="contract-nav">
+    <div class="contract-nav-logo">Fid<span>Models</span></div>
+    <div class="contract-step-indicator">Step 1 of 2 — Contract Review</div>
+  </nav>
+  <div class="contract-body">
+    <div class="contract-header">
+      <p class="contract-eyebrow">Before You Proceed</p>
+      <h2 class="contract-title">Review Your <em>Contracts.</em></h2>
+      <p class="contract-desc">Please read and agree to all four contracts below before accessing your dashboard. These agreements govern your working relationship with FidModels Agency.</p>
+    </div>
+
+    <div class="contract-progress">
+      <div class="cp-step" id="cp1"></div>
+      <div class="cp-step" id="cp2"></div>
+      <div class="cp-step" id="cp3"></div>
+      <div class="cp-step" id="cp4"></div>
+    </div>
+
+    <div class="contract-cards">
+
+      <!-- CONTRACT 1 -->
+      <div class="contract-card" id="cc1">
+        <div class="contract-card-header" onclick="toggleContract(1)">
+          <div class="contract-card-left">
+            <div class="contract-num">I</div>
+            <div>
+              <div class="contract-card-title">Talent Representation Agreement</div>
+              <div class="contract-card-sub">Agency terms, commission structure & exclusivity</div>
+            </div>
+          </div>
+          <div class="contract-chevron">▼</div>
+        </div>
+        <div class="contract-body-text">
+          This Talent Representation Agreement ("Agreement") is entered into between FidModels Agency ("Agency") and the undersigned model ("Talent"). The Agency agrees to represent the Talent exclusively within the Nigerian modelling market for a period of twelve (12) months, with optional renewal by mutual consent.<br><br>
+          The Agency shall receive a commission of fifteen percent (15%) of all gross earnings secured through Agency bookings. The Talent retains full rights to independently secured work outside Agency channels, provided such work does not conflict with existing Agency bookings or exclusive brand deals negotiated on the Talent's behalf.<br><br>
+          The Talent agrees to maintain professional conduct at all times, attend all confirmed bookings punctually, and notify the Agency of any scheduling conflicts with a minimum of 48 hours notice. Failure to honour confirmed bookings without adequate notice may result in financial penalties as outlined in Schedule B of this Agreement.
+        </div>
+        <div class="contract-agree">
+          <input type="checkbox" class="agree-checkbox" id="ag1" onchange="onAgree(1, this)">
+          <label class="agree-box" for="ag1">✓</label>
+          <label class="agree-label" for="ag1">I have read and agree to the Talent Representation Agreement</label>
+        </div>
+      </div>
+
+      <!-- CONTRACT 2 -->
+      <div class="contract-card" id="cc2">
+        <div class="contract-card-header" onclick="toggleContract(2)">
+          <div class="contract-card-left">
+            <div class="contract-num">II</div>
+            <div>
+              <div class="contract-card-title">Image & Content Rights Agreement</div>
+              <div class="contract-card-sub">Usage rights, licensing & intellectual property</div>
+            </div>
+          </div>
+          <div class="contract-chevron">▼</div>
+        </div>
+        <div class="contract-body-text">
+          This Image & Content Rights Agreement governs the use of the Talent's likeness, image, and any content produced during Agency-arranged bookings. The Talent grants the Agency and its client brands a non-exclusive, royalty-free licence to use images and video footage captured during official bookings for the duration agreed in each individual campaign brief.<br><br>
+          Any usage beyond the agreed scope — including but not limited to additional platforms, extended duration, or international markets — shall require renegotiation and additional compensation. The Talent retains the right to use behind-the-scenes content and approved campaign imagery for personal portfolio purposes.<br><br>
+          The Talent agrees not to commercially exploit Agency-produced content independently without prior written consent. All raw, unedited files remain the property of the commissioning client or photographer as outlined in individual shoot agreements.
+        </div>
+        <div class="contract-agree">
+          <input type="checkbox" class="agree-checkbox" id="ag2" onchange="onAgree(2, this)">
+          <label class="agree-box" for="ag2">✓</label>
+          <label class="agree-label" for="ag2">I have read and agree to the Image & Content Rights Agreement</label>
+        </div>
+      </div>
+
+      <!-- CONTRACT 3 -->
+      <div class="contract-card" id="cc3">
+        <div class="contract-card-header" onclick="toggleContract(3)">
+          <div class="contract-card-left">
+            <div class="contract-num">III</div>
+            <div>
+              <div class="contract-card-title">Code of Conduct & Professionalism Policy</div>
+              <div class="contract-card-sub">Behaviour standards, social media guidelines & compliance</div>
+            </div>
+          </div>
+          <div class="contract-chevron">▼</div>
+        </div>
+        <div class="contract-body-text">
+          FidModels Agency maintains a strict Code of Conduct to protect the reputation of its roster and the integrity of client relationships. The Talent agrees to conduct themselves with professionalism and respect in all Agency-related interactions, on and off set.<br><br>
+          Social media activity that could be deemed offensive, controversial, or damaging to client brands must be avoided during active campaign periods. The Talent agrees to disclose any social media posts referencing Agency clients or campaigns to the Agency's PR team prior to publishing, for approval.<br><br>
+          The use of illegal substances, engagement in criminal activity, or behaviour that brings the Agency or its clients into disrepute may result in immediate termination of this agreement without financial liability to the Agency. All disputes shall be resolved through mediation before legal proceedings are initiated.
+        </div>
+        <div class="contract-agree">
+          <input type="checkbox" class="agree-checkbox" id="ag3" onchange="onAgree(3, this)">
+          <label class="agree-box" for="ag3">✓</label>
+          <label class="agree-label" for="ag3">I have read and agree to the Code of Conduct & Professionalism Policy</label>
+        </div>
+      </div>
+
+      <!-- CONTRACT 4 -->
+      <div class="contract-card" id="cc4">
+        <div class="contract-card-header" onclick="toggleContract(4)">
+          <div class="contract-card-left">
+            <div class="contract-num">IV</div>
+            <div>
+              <div class="contract-card-title">Payment Terms & Financial Agreement</div>
+              <div class="contract-card-sub">Payment schedule, tax obligations & withdrawal policy</div>
+            </div>
+          </div>
+          <div class="contract-chevron">▼</div>
+        </div>
+        <div class="contract-body-text">
+          All payments to Talent shall be processed within fourteen (14) business days of the Agency receiving cleared funds from the commissioning client. Payments shall be made via direct bank transfer to the account details registered on the Talent's profile.<br><br>
+          The Talent is solely responsible for declaring and paying any applicable taxes on income earned through Agency bookings. FidModels Agency shall provide monthly earnings statements to assist with tax documentation upon request.<br><br>
+          Minimum withdrawal threshold is ₦5,000. Withdrawal requests submitted before 3PM on business days shall be processed same day. Requests submitted after 3PM or on weekends shall be processed the following business day. The Agency reserves the right to withhold payment pending resolution of any outstanding contractual disputes.
+        </div>
+        <div class="contract-agree">
+          <input type="checkbox" class="agree-checkbox" id="ag4" onchange="onAgree(4, this)">
+          <label class="agree-box" for="ag4">✓</label>
+          <label class="agree-label" for="ag4">I have read and agree to the Payment Terms & Financial Agreement</label>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="contract-action">
+      <div class="contracts-done-count">
+        <strong id="agreedCount">0</strong> of 4 contracts agreed
+      </div>
+      <button class="proceed-btn" id="proceedBtn" onclick="goToDashboard()">
+        Access My Dashboard
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 3 — DASHBOARD
+═══════════════════════════════════ -->
+<div class="screen" id="dashScreen">
+
+  <!-- NAV -->
+  <nav class="dash-nav">
+    <div class="dash-nav-logo">Fid<span>Models</span></div>
+    <div class="dash-nav-center">
+      <a class="dash-nav-link active">Dashboard</a>
+      <a class="dash-nav-link">Bookings</a>
+      <a class="dash-nav-link">Portfolio</a>
+      <a class="dash-nav-link">Messages</a>
+      <a class="dash-nav-link">Payments</a>
+    </div>
+    <div class="dash-nav-right">
+      <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+      <div class="avatar-btn" id="navAvatar">M</div>
+    </div>
+  </nav>
+
+  <div class="dash-body">
+
+    <!-- WELCOME BANNER -->
+    <div class="welcome-banner">
+      <div class="welcome-left">
+        <div class="welcome-greeting">Welcome Back</div>
+        <div class="welcome-name" id="welcomeName">Model <em>223</em></div>
+        <div class="welcome-meta">
+          <span id="welcomeId">ID: FM-223</span>
+          <div class="welcome-meta-sep"></div>
+          <span>Joined 2025</span>
+          <div class="welcome-meta-sep"></div>
+          <span id="loginTime">Today, 9:41 AM</span>
+        </div>
+      </div>
+      <div class="welcome-right">
+        <div class="status-badge">
+          <div class="status-dot-green"></div>
+          Active Model
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-icon">💰</span>
+        <div class="stat-label">Account Balance</div>
+        <div class="stat-value gold">₦25,000</div>
+        <div class="stat-change">Available for withdrawal</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📋</span>
+        <div class="stat-label">Pending Tasks</div>
+        <div class="stat-value">4</div>
+        <div class="stat-change" style="color:#d97706;">Action required</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📅</span>
+        <div class="stat-label">Upcoming Bookings</div>
+        <div class="stat-value green">2</div>
+        <div class="stat-change positive">Next: Dec 28th</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">⭐</span>
+        <div class="stat-label">Profile Rating</div>
+        <div class="stat-value">4.8</div>
+        <div class="stat-change positive">Top 10% of roster</div>
+      </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="main-grid">
+
+      <!-- LEFT: TASKS + BOOKINGS -->
+      <div style="display:flex;flex-direction:column;gap:20px;">
+
+        <!-- TASKS -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              📹 Video Tasks
+              <span class="card-badge urgent">4 Pending</span>
+            </div>
+            <button class="card-action">View All</button>
+          </div>
+          <div class="card-body">
+
+            <div class="task-item">
+              <div class="task-icon-wrap urgent">🎥</div>
+              <div class="task-content">
+                <div class="task-title">Task 01 — Brand Introduction Video</div>
+                <div class="task-desc">Record a 60-second introduction video. State your name, modelling category, and why you chose FidModels. Speak clearly, good lighting, professional background.</div>
+                <div class="task-meta">
+                  <span class="task-tag tag-urgent">Urgent</span>
+                  <span class="task-deadline">⏰ Due: Dec 27, 2025</span>
+                </div>
+              </div>
+              <button class="task-action-btn" onclick="openUpload('Task 01 — Brand Introduction Video', 'Record a 60-second introduction video. State your name, modelling category, and why you chose FidModels.')">Submit</button>
+            </div>
+
+            <div class="task-item">
+              <div class="task-icon-wrap urgent">🎥</div>
+              <div class="task-content">
+                <div class="task-title">Task 02 — Runway Walk Video</div>
+                <div class="task-desc">Record yourself doing a full runway walk — towards camera and away. At least 30 seconds. Wear something elegant. Heels recommended for female models.</div>
+                <div class="task-meta">
+                  <span class="task-tag tag-urgent">Urgent</span>
+                  <span class="task-deadline">⏰ Due: Dec 27, 2025</span>
+                </div>
+              </div>
+              <button class="task-action-btn" onclick="openUpload('Task 02 — Runway Walk Video', 'Record yourself doing a full runway walk — towards camera and away. At least 30 seconds.')">Submit</button>
+            </div>
+
+            <div class="task-item">
+              <div class="task-icon-wrap pending">🎥</div>
+              <div class="task-content">
+                <div class="task-title">Task 03 — Poses & Expressions Video</div>
+                <div class="task-desc">Record a 45-second video showcasing 5 different poses and 5 different facial expressions. Show range and versatility. Natural lighting preferred.</div>
+                <div class="task-meta">
+                  <span class="task-tag tag-pending">Pending</span>
+                  <span class="task-deadline">⏰ Due: Dec 30, 2025</span>
+                </div>
+              </div>
+              <button class="task-action-btn" onclick="openUpload('Task 03 — Poses & Expressions Video', 'Record a 45-second video showcasing 5 different poses and 5 different facial expressions.')">Submit</button>
+            </div>
+
+            <div class="task-item">
+              <div class="task-icon-wrap pending">🎥</div>
+              <div class="task-content">
+                <div class="task-title">Task 04 — Personality & Lifestyle Video</div>
+                <div class="task-desc">A casual 90-second video showing your personality. Talk about your hobbies, interests, and what makes you unique as a model. Be authentic and natural.</div>
+                <div class="task-meta">
+                  <span class="task-tag tag-pending">Pending</span>
+                  <span class="task-deadline">⏰ Due: Dec 30, 2025</span>
+                </div>
+              </div>
+              <button class="task-action-btn" onclick="openUpload('Task 04 — Personality & Lifestyle Video', 'A casual 90-second video showing your personality, hobbies, and what makes you unique.')">Submit</button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- UPCOMING BOOKINGS -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📅 Upcoming Bookings</div>
+            <button class="card-action">Calendar</button>
+          </div>
+          <div class="card-body">
+            <div class="task-item">
+              <div class="task-icon-wrap" style="background:#f0fdf4;border-color:#bbf7d0;">📸</div>
+              <div class="task-content">
+                <div class="task-title">Editorial Shoot — Lagos Vogue Feature</div>
+                <div class="task-desc">Location TBC · Studio shoot · Wardrobe provided by client</div>
+                <div class="task-meta">
+                  <span class="task-tag" style="background:#f0fdf4;color:#16a34a;">Confirmed</span>
+                  <span class="task-deadline">📅 Dec 28, 2025 · 10:00 AM</span>
+                </div>
+              </div>
+            </div>
+            <div class="task-item">
+              <div class="task-icon-wrap" style="background:#eff6ff;border-color:#bfdbfe;">🛍</div>
+              <div class="task-content">
+                <div class="task-title">Brand Campaign — FashionNG Collection</div>
+                <div class="task-desc">Commercial shoot for spring collection · Lekki Phase 1 Studio</div>
+                <div class="task-meta">
+                  <span class="task-tag" style="background:#eff6ff;color:#1d4ed8;">Pending Confirmation</span>
+                  <span class="task-deadline">📅 Jan 4, 2026 · 9:00 AM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT SIDEBAR -->
+      <div class="sidebar-stack">
+
+        <!-- BALANCE -->
+        <div class="balance-card">
+          <div class="balance-label">Account Balance</div>
+          <div class="balance-amount"><span class="balance-currency">₦</span>25,000<span style="font-size:16px;color:rgba(245,240,232,0.4)">.00</span></div>
+          <div class="balance-sub">Available to withdraw</div>
+          <div class="balance-divider"></div>
+          <div class="balance-row">
+            <span class="balance-row-label">Total Earned</span>
+            <span class="balance-row-val gold">₦25,000</span>
+          </div>
+          <div class="balance-row">
+            <span class="balance-row-label">Pending Earnings</span>
+            <span class="balance-row-val pending">₦45,000</span>
+          </div>
+          <div class="balance-row">
+            <span class="balance-row-label">Total Withdrawn</span>
+            <span class="balance-row-val">₦0.00</span>
+          </div>
+          <div class="balance-row">
+            <span class="balance-row-label">Next Payout</span>
+            <span class="balance-row-val">Dec 28</span>
+          </div>
+          <button class="withdraw-btn" onclick="openWithdraw()">Request Withdrawal</button>
+        </div>
+
+        <!-- PROFILE -->
+        <div class="profile-card">
+          <div class="profile-card-top">
+            <div class="profile-avatar" id="profileAvatar">M</div>
+            <div>
+              <div class="profile-name" id="profileName">Model 223</div>
+              <div class="profile-id">FM-2025-223 · Active Talent</div>
+            </div>
+          </div>
+          <div class="profile-rows">
+            <div class="profile-row">
+              <span class="profile-row-key">Status</span>
+              <span class="profile-row-val gold">Active ✦</span>
+            </div>
+            <div class="profile-row">
+              <span class="profile-row-key">Category</span>
+              <span class="profile-row-val">Fashion / Editorial</span>
+            </div>
+            <div class="profile-row">
+              <span class="profile-row-key">Tier</span>
+              <span class="profile-row-val">New Talent</span>
+            </div>
+            <div class="profile-row">
+              <span class="profile-row-key">Tasks Done</span>
+              <span class="profile-row-val">0 / 4</span>
+            </div>
+            <div class="profile-row">
+              <span class="profile-row-key">Profile</span>
+              <span class="profile-row-val" style="color:#d97706;">65% Complete</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS -->
+        <div class="notif-card">
+          <div class="card-header" style="padding:14px 16px;">
+            <div class="card-title" style="font-size:12px;">🔔 Notifications</div>
+            <button class="card-action" style="font-size:9px;">Mark all read</button>
+          </div>
+          <div class="notif-item unread">
+            <div class="notif-dot"></div>
+            <div class="notif-content">
+              <div class="notif-text">Your account has been approved. Welcome to FidModels!</div>
+              <div class="notif-time">Just now</div>
+            </div>
+          </div>
+          <div class="notif-item unread">
+            <div class="notif-dot"></div>
+            <div class="notif-content">
+              <div class="notif-text">4 video tasks have been assigned to your profile. Complete them to unlock full earnings.</div>
+              <div class="notif-time">2 min ago</div>
+            </div>
+          </div>
+          <div class="notif-item unread">
+            <div class="notif-dot"></div>
+            <div class="notif-content">
+              <div class="notif-text">You have been shortlisted for the Lagos Vogue editorial shoot on Dec 28.</div>
+              <div class="notif-time">1 hour ago</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div style="width:7px;flex-shrink:0;margin-top:5px;"></div>
+            <div class="notif-content">
+              <div class="notif-text">Your contracts have been received and countersigned by management.</div>
+              <div class="notif-time">Today</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- UPLOAD MODAL -->
+<div class="upload-prompt" id="uploadPrompt">
+  <div class="upload-box">
+    <div class="upload-header">
+      <div class="upload-header-title">Submit <em>Video Task</em></div>
+      <button class="upload-close" onclick="closeUpload()">✕</button>
+    </div>
+    <div class="upload-body">
+      <div class="upload-task-name" id="uploadTaskName">Task 01</div>
+      <div class="upload-desc" id="uploadTaskDesc">Task description here.</div>
+      <div class="upload-instructions">
+        <div class="upload-instructions-title">📋 Recording Guidelines</div>
+        <ul>
+          <li>Minimum video length as specified in task</li>
+          <li>Good lighting — face must be clearly visible</li>
+          <li>Quiet environment, no background noise</li>
+          <li>Hold phone horizontally (landscape mode)</li>
+          <li>MP4 or MOV format preferred</li>
+          <li>Maximum file size: 500MB per video</li>
+        </ul>
+      </div>
+      <div class="upload-desc" style="font-size:12px;font-weight:500;margin-bottom:12px;color:var(--black);">Send your completed video directly to your assigned recruiter:</div>
+      <div class="recruiter-box">
+        <div class="recruiter-avatar">F</div>
+        <div>
+          <div class="recruiter-info-name">Fiona Adeyemi</div>
+          <div class="recruiter-info-role">Senior Talent Recruiter · FidModels Lagos</div>
+        </div>
+      </div>
+      <div class="upload-contact-row">
+        <div class="contact-method" onclick="copyText('fidmodels.recruiter@gmail.com', this)">
+          <span class="contact-method-icon">📧</span>
+          <div>
+            <div class="contact-method-label">Email</div>
+            <div class="contact-method-value">fidmodels.recruiter@gmail.com</div>
+          </div>
+          <span class="copy-hint">Tap to copy</span>
+        </div>
+        <div class="contact-method" onclick="copyText('+2348012345678', this)">
+          <span class="contact-method-icon">📱</span>
+          <div>
+            <div class="contact-method-label">WhatsApp</div>
+            <div class="contact-method-value">+234 801 234 5678</div>
+          </div>
+          <span class="copy-hint">Tap to copy</span>
+        </div>
+      </div>
+      <div class="upload-footer">
+        <button class="upload-cancel" onclick="closeUpload()">Cancel</button>
+        <button class="upload-confirm" onclick="markTaskSent()">I've Sent the Video ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WITHDRAW MODAL -->
+<div class="withdraw-modal" id="withdrawModal">
+  <div class="withdraw-box">
+    <div class="withdraw-header">
+      <div class="withdraw-title">Request Withdrawal</div>
+      <button class="upload-close" onclick="closeWithdraw()" style="color:rgba(245,240,232,0.5)">✕</button>
+    </div>
+    <div class="withdraw-body">
+      <div class="withdraw-notice">
+        <strong>⚠️ Tasks Required</strong>
+        Withdrawal is available once all 4 video tasks have been reviewed and approved by your recruiter. Please complete and submit your tasks to unlock full withdrawal access.
+      </div>
+      <div class="w-field">
+        <label class="w-label">Withdrawal Amount (₦)</label>
+        <input class="w-input" type="number" placeholder="e.g. 10000" max="25000">
+      </div>
+      <div class="w-field">
+        <label class="w-label">Bank Account</label>
+        <input class="w-input" type="text" placeholder="Account number on file">
+      </div>
+      <button class="w-btn" onclick="closeWithdraw();alert('Withdrawal request submitted. Pending task completion review.')">Submit Request</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── CURSOR ───────────────────────────────────────────
+  const cursor = document.getElementById('cursor');
+  const ring   = document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.transform=`translate(${mx-3.5}px,${my-3.5}px)`;});
+  (function animR(){rx+=(mx-rx-14)*0.12;ry+=(my-ry-14)*0.12;ring.style.transform=`translate(${rx}px,${ry}px)`;requestAnimationFrame(animR);})();
+
+  // ── LOGIN ────────────────────────────────────────────
+  let modelName = 'Model 223';
+  let modelId   = 'FM-223';
+
+  document.getElementById('loginEmail').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+  document.getElementById('loginPass').addEventListener('keydown',  e => { if(e.key==='Enter') doLogin(); });
+
+  function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPass').value.trim();
+
+    // Accept anything — extract a name from email if possible
+    if (email) {
+      const local = email.split('@')[0].replace(/[._-]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+      if (local && local.length > 1 && local.length < 30) {
+        modelName = local;
+      }
+      // Generate a model ID from the email
+      const hash = Math.abs(email.split('').reduce((a,c)=>((a<<5)-a)+c.charCodeAt(0),0)) % 900 + 100;
+      modelId = 'FM-' + hash;
+    }
+
+    const btn = document.getElementById('loginBtn');
+    btn.classList.add('loading');
+    btn.textContent = 'Signing in...';
+
+    setTimeout(() => {
+      btn.classList.remove('loading');
+      btn.textContent = 'Sign In to Portal';
+      showScreen('contractScreen');
+    }, 1400);
+  }
+
+  // ── CONTRACTS ────────────────────────────────────────
+  let agreedContracts = new Set();
+
+  function toggleContract(n) {
+    const card = document.getElementById('cc'+n);
+    card.classList.toggle('open');
+  }
+
+  function onAgree(n, cb) {
+    const card = document.getElementById('cc'+n);
+    const prog = document.getElementById('cp'+n);
+    if (cb.checked) {
+      agreedContracts.add(n);
+      card.classList.add('agreed');
+      card.classList.remove('open');
+      prog.classList.add('done');
+      // Update the roman numeral to checkmark
+      card.querySelector('.contract-num').textContent = '✓';
+    } else {
+      agreedContracts.delete(n);
+      card.classList.remove('agreed');
+      prog.classList.remove('done');
+      card.querySelector('.contract-num').textContent = ['I','II','III','IV'][n-1];
+    }
+
+    const count = agreedContracts.size;
+    document.getElementById('agreedCount').textContent = count;
+
+    const btn = document.getElementById('proceedBtn');
+    if (count === 4) {
+      btn.classList.add('enabled');
+    } else {
+      btn.classList.remove('enabled');
+    }
+  }
+
+  function goToDashboard() {
+    if (agreedContracts.size < 4) return;
+
+    // Personalise dashboard with login name
+    document.getElementById('welcomeName').innerHTML = modelName.includes('Model') ? 
+      `Model <em>${modelName.replace('Model','').trim()}</em>` :
+      `<em>${modelName}</em>`;
+    document.getElementById('welcomeId').textContent = 'ID: ' + modelId;
+    document.getElementById('profileName').textContent = modelName;
+    document.getElementById('navAvatar').textContent = modelName.charAt(0).toUpperCase();
+    document.getElementById('profileAvatar').textContent = modelName.charAt(0).toUpperCase();
+
+    // Set login time
+    const now = new Date();
+    document.getElementById('loginTime').textContent = 'Today, ' + now.toLocaleTimeString('en-NG', {hour:'2-digit',minute:'2-digit'});
+
+    showScreen('dashScreen');
+  }
+
+  // ── SCREEN SWITCHER ──────────────────────────────────
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  // ── UPLOAD MODAL ─────────────────────────────────────
+  function openUpload(taskName, taskDesc) {
+    document.getElementById('uploadTaskName').textContent = taskName;
+    document.getElementById('uploadTaskDesc').textContent = taskDesc;
+    document.getElementById('uploadPrompt').classList.add('show');
+  }
+
+  function closeUpload() {
+    document.getElementById('uploadPrompt').classList.remove('show');
+  }
+
+  function markTaskSent() {
+    closeUpload();
+    // Show a toast-style confirmation
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:var(--black);color:var(--cream);padding:14px 28px;font-size:12px;letter-spacing:1px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.3);border-left:3px solid var(--gold);font-family:var(--sans);font-weight:500;';
+    toast.textContent = '✓ Video submission noted — Recruiter will review within 24 hours';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+
+  function copyText(text, el) {
+    navigator.clipboard.writeText(text).catch(()=>{});
+    const hint = el.querySelector('.copy-hint');
+    hint.textContent = 'Copied!';
+    hint.style.color = 'var(--green)';
+    setTimeout(() => { hint.textContent = 'Tap to copy'; hint.style.color = ''; }, 2000);
+  }
+
+  // ── WITHDRAW MODAL ───────────────────────────────────
+  function openWithdraw() {
+    document.getElementById('withdrawModal').classList.add('show');
+  }
+
+  function closeWithdraw() {
+    document.getElementById('withdrawModal').classList.remove('show');
+  }
+
+  // Close modals on backdrop click
+  document.getElementById('uploadPrompt').addEventListener('click', e => { if(e.target.id==='uploadPrompt') closeUpload(); });
+  document.getElementById('withdrawModal').addEventListener('click', e => { if(e.target.id==='withdrawModal') closeWithdraw(); });
+</script>
+
+</body>
+</html>
